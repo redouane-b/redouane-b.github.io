@@ -1,4 +1,4 @@
-# Portfolio Woody BORGELLA - Data Analytics & Machine Learning
+# Portfolio 
 
 Ce projet est un portfolio professionnel moderne conçu pour mettre en avant l'expertise en **Data Analytics** et **Machine Learning**.
 
