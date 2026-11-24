@@ -1,39 +1,14 @@
-# Portfolio 
+# Redouane Bouazza · Portfolio
 
-Ce projet est un portfolio professionnel moderne conçu pour mettre en avant l'expertise en **Data Analytics** et **Machine Learning**.
+Source of **https://redouane-b.github.io/**, the personal site of Redouane Bouazza, Senior Data & AI Solutions at Karetis (AI & data for pharma sales performance · Lyon, France).
 
-## 🚀 Technologie Stack
-- **Framework**: React 19 + Vite
-- **Styling**: Vanilla CSS (Premium & Dynamic Design)
-- **Deployment**: GitHub Pages
+Built with React 19 + Vite. Every push to `main` is built and published by GitHub Actions (`.github/workflows/deploy.yml`). In **Settings → Pages**, the source must be **GitHub Actions**.
 
-## 📦 Installation & Développement
-1. Clonez le dépôt
-2. Installez les dépendances :
-   ```bash
-   npm install
-   ```
-3. Lancez le serveur de développement :
-   ```bash
-   npm run dev
-   ```
+## Develop
 
-## 🌐 Déploiement sur GitHub Pages
-
-### 1. Configuration initiale
-Le projet est déjà configuré pour GitHub Pages via la bibliothèque `gh-pages`.
-
-### 2. Publication
-Pour publier ou mettre à jour votre site en ligne, exécutez simplement :
 ```bash
-npm run deploy
+npm install
+npm run dev
 ```
 
-Cette commande va :
-1. Construire la version de production (`npm run build`).
-2. Créer une branche `gh-pages` sur votre GitHub.
-3. Envoyer les fichiers optimisés sur cette branche pour qu'ils soient accessibles via :
-   `https://WoodyBOR1.github.io/data-portfolio/`
-
----
-© 2026 Woody BORGELLA - Excellence Data & IA
+Content lives at the top of `src/App.jsx`. Case-study cards have an `impact` field: leave it `null` until there is a real number. The page is public, so keep clients anonymous. Search-engine metadata (title, description, Open Graph, schema.org `Person`) lives in `index.html`. Update its `dateModified` and `public/sitemap.xml` `lastmod` when the content changes.

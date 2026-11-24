@@ -1,578 +1,421 @@
-import { useState } from 'react'
 import './App.css'
 
-const SOCIAL_LINKS = {
+/*
+ * Content for redouane-b.github.io
+ *
+ * Public page: no client names, client staff, internal infrastructure, schemas,
+ * pricing or personal-life details. Client work is described anonymously.
+ *
+ * `impact: null` = no number yet. Fill in a real figure (e.g. "Visit prep from X to Y min")
+ * and it appears on the card; null shows nothing. Never invent numbers.
+ */
+
+const LINKS = {
+  karetis: "https://www.karetis.com/",
   github: "https://github.com/redouane-b",
   linkedin: "https://www.linkedin.com/in/redouane-b-36446a165/",
   medium: "https://redouaneb.medium.com/",
-  email: "mailto:bouazza.re@gmail.com",
+  pharmaRepo: "https://github.com/redouane-b/pharma-data-hub-france",
+  dataGouv: "https://www.data.gouv.fr/reuses/article-descriptif-de-openmedic-avec-visualisations",
+  medium1: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-1-4-4b189e4e9703",
+  medium2: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-2-5-0d7d5d36e545",
+  egoPost: "https://redouaneb.medium.com/tutoriel-comment-construire-un-ego-graph-en-utilisant-lapi-google-suggest-0528210a498d",
+  egoDemo: "https://ego-graph.vercel.app",
+  egoRepo: "https://github.com/redouane-b/ego_graph_generator",
 };
 
-const translations = {
-  fr: {
-    nav: {
-      home: "Accueil",
-      experience: "Expérience",
-      realisation: "Projets",
-      contact: "Contact"
-    },
-    hero: {
-      hello: "Bonjour",
-      im: "Je suis",
-      name: "Redouane BOUAZZA",
-      subtitle: "AI/ML · Pharma & Healthcare · Lyon, France",
-      description: "Je conçois et déploie des <span class='text-highlight'>systèmes d'intelligence décisionnelle</span> — de l'ingestion de données brutes aux modèles ML jusqu'aux interfaces où les humains prennent de vraies décisions.",
-      cta_projects: "Mes projets",
-      cta_cv: "Me contacter",
-      experience_title: "EXPÉRIENCES"
-    },
-    stats: [
-      { id: 1, label: "Années d'expérience", value: "2.5+" },
-      { id: 2, label: "Clients déployés", value: "150+" },
-      { id: 3, label: "Appels d'offres remportés", value: "150k€" },
-      { id: 4, label: "Certifications", value: "5+" }
-    ],
-    experiences: [
-      {
-        role: "Ingénieur Data Scientist R&D",
-        company: "IRT Jules Verne",
-        period: "Mai 2024 – Présent",
-        location: "Nantes, France",
-        bullets: [
-          "Réduction de 64% des coûts de contrôle non destructif par ultrasons via un outil d'aide à la décision (deep learning + traitement du signal)",
-          "Computer vision pour la caractérisation de pièces aéronautiques / nucléaires avec quantification d'incertitude",
-          "Remporté 2 appels d'offres de recherche pour 150k€ (prospection, rédaction cahier des charges, négociation)"
-        ]
-      },
-      {
-        role: "Data Scientist R&D",
-        company: "Enerfox (EnergyTech Startup)",
-        period: "Mars 2023 – Avril 2024",
-        location: "Laval, France",
-        bullets: [
-          "Modèles de prévision énergétique (LSTM, Transformers) : +30% de précision, déployés sur 150+ clients professionnels avec monitoring/alerting",
-          "Outil de diagnostic énergétique automatisé : temps d'analyse réduit de 10-15h à 20 minutes",
-          "Algorithme NILM breveté pour la désagrégation énergétique professionnelle",
-          "Collaboration directe CEO & Directeur Commercial pour définir KPIs et roadmap produit"
-        ]
-      },
-      {
-        role: "Research Assistant",
-        company: "Institut Mathématique de Bordeaux",
-        period: "Mai – Août 2022",
-        location: "Bordeaux, France",
-        bullets: [
-          "Modèles génératifs profonds (VD-VAE, StyleGAN) pour la synthèse d'images haute résolution photo-réalistes",
-          "Manipulation d'espaces latents pour le contrôle sémantique (face editing)"
-        ]
-      },
-      {
-        role: "Research Intern",
-        company: "ENSET Mohammedia",
-        period: "Juin – Août 2021",
-        location: "Mohammedia, Maroc",
-        bullets: [
-          "Modèles de Deep Reinforcement Learning pour la conduite autonome en environnements simulés",
-          "Algorithmes génétiques pour l'optimisation combinatoire sur graphes"
-        ]
-      }
-    ],
-    skills: {
-      title: "COMPÉTENCES TECHNIQUES",
-      categories: [
-        {
-          name: "Machine Learning",
-          items: ["Deep Learning", "Time Series", "Computer Vision", "NLP", "Reinforcement Learning", "Signal Processing", "Uncertainty Quantification"]
-        },
-        {
-          name: "Stack Technique",
-          items: ["Python", "PyTorch", "TensorFlow", "Scikit-learn", "SQL", "Git", "Linux", "Docker", "MLflow"]
-        },
-        {
-          name: "Cloud & MLOps",
-          items: ["AWS", "GCP", "Azure", "CI/CD", "MLOps", "Monitoring"]
-        }
-      ]
-    },
-    projects: {
-      title: "RÉALISATIONS PHARES",
-      learn_more: "En savoir plus →",
-      items: [
-        {
-          id: 0,
-          title: "Pharma Open Data Hub France",
-          description: "Pipeline ETL pour les datasets publics de santé français (Open Medic, RPPS, FINESS, Transparence Santé). Analyse et exploration des données pharmaceutiques nationales.",
-          tags: ["Python", "ETL", "Healthcare", "Open Data"],
-          category: "Data Engineering · Pharma",
-          link: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-1-4-4b189e4e9703"
-        },
-        {
-          id: 1,
-          title: "Inspection Industrielle par Ultrasons",
-          description: "Système d'aide à la décision end-to-end : acquisition signal → détection deep learning → recommandations opérateur. Réduction de 64% des coûts de contrôle non destructif.",
-          tags: ["Deep Learning", "Signal Processing", "PyTorch", "NDT"],
-          category: "Industrial AI · Computer Vision"
-        },
-        {
-          id: 2,
-          title: "Prévision Énergétique LSTM / Transformers",
-          description: "Modèles de forecasting state-of-the-art pour la production solaire et la consommation. +30% de précision, déployés en production avec monitoring pour 150+ clients.",
-          tags: ["PyTorch", "LSTM", "Transformers", "MLOps", "Time Series"],
-          category: "Time Series Forecasting"
-        },
-        {
-          id: 3,
-          title: "Diagnostic Énergétique Automatisé",
-          description: "Outil automatisé transformant les données en leads qualifiés et recommandations actionnables pour les contrats de performance énergétique. Analyse : 10-15h → 20 min.",
-          tags: ["Python", "Pandas", "Data Pipeline", "Analytics"],
-          category: "Energy Analytics"
-        },
-        {
-          id: 4,
-          title: "Algorithme NILM Breveté",
-          description: "Adaptation d'algorithmes NILM (Non-Intrusive Load Monitoring) pour la désagrégation énergétique en milieu professionnel. Déposé comme brevet par Enerfox.",
-          tags: ["Signal Processing", "Python", "NILM", "Patent"],
-          category: "Signal Processing · Energy"
-        },
-        {
-          id: 5,
-          title: "Ego Graph via Google Suggest API",
-          description: "Construction d'un ego graph exploitant l'API Google Suggest pour visualiser les relations sémantiques autour d'un concept clé.",
-          tags: ["Python", "Graph", "NLP", "API"],
-          category: "Data Visualization · NLP",
-          link: "https://redouaneb.medium.com/tutoriel-comment-construire-un-ego-graph-en-utilisant-lapi-google-suggest-0528210a498d"
-        }
-      ]
-    },
-    blog: {
-      title: "DERNIERS ARTICLES",
-      read_more: "Lire sur Medium →",
-      items: [
-        {
-          title: "Pharma Open Data: Guide des sources publiques de données pharmaceutiques en France — Partie 1/4",
-          link: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-1-4-4b189e4e9703",
-          tag: "Healthcare · Open Data"
-        },
-        {
-          title: "Comment construire un Ego Graph en utilisant l'API Google Suggest",
-          link: "https://redouaneb.medium.com/tutoriel-comment-construire-un-ego-graph-en-utilisant-lapi-google-suggest-0528210a498d",
-          tag: "NLP · Graph"
-        }
-      ]
-    },
-    contact: {
-      title: "CONSTRUISONS QUELQUE CHOSE ENSEMBLE",
-      description: "Je cherche des opportunités en <span class='text-highlight'>Data Science</span>, <span class='text-highlight'>ML Engineering</span> et <span class='text-highlight'>Decision Intelligence</span> dans la pharma, la santé ou l'industrie."
-    },
-    footer: "© 2026 Redouane BOUAZZA · Decision Intelligence Systems"
+const WHAT_I_DO = [
+  {
+    title: "Help field teams decide who to see and what to say",
+    text: "Targeting, next-best-action and visit-preparation tools that sales reps and MSLs use in their day, not dashboards they have to go looking for.",
   },
-  en: {
-    nav: {
-      home: "Home",
-      experience: "Experience",
-      realisation: "Projects",
-      contact: "Contact"
-    },
-    hero: {
-      hello: "Hello",
-      im: "I'm",
-      name: "Redouane BOUAZZA",
-      subtitle: "AI/ML · Pharma & Healthcare · Lyon, France",
-      description: "I design and deploy <span class='text-highlight'>decision intelligence systems</span> — from raw data ingestion to ML models to the interfaces where humans make real decisions.",
-      cta_projects: "My projects",
-      cta_cv: "Contact me",
-      experience_title: "EXPERIENCES"
-    },
-    stats: [
-      { id: 1, label: "Years of experience", value: "2.5+" },
-      { id: 2, label: "Clients deployed", value: "150+" },
-      { id: 3, label: "Contracts won", value: "€150k" },
-      { id: 4, label: "Certifications", value: "5+" }
+  {
+    title: "Turn AI from pilots into adopted tools",
+    text: "Maturity diagnostics, hands-on coaching and agents that pharma teams keep using after the workshop ends.",
+  },
+  {
+    title: "Make AI trustworthy in a regulated setting",
+    text: "GDPR, EU AI Act and transparency rules built into the design, with humans approving what the AI writes.",
+  },
+];
+
+const FEATURED = [
+  {
+    flagship: true,
+    name: "Kairos",
+    note: "καιρός: the opportune moment",
+    title: "Voice AI assistant for pharma field teams",
+    visibility: "Karetis product · case study, code private",
+    problem: "Medical reps and MSLs need to prepare visits, rehearse conversations and log notes without spending more time in the CRM.",
+    approach: "Kairos builds a pre-visit briefing, runs a roleplay of the doctor conversation with a scored debrief, and drafts the visit notes. Earlier phases added batch next-best-action scoring and project tracking.",
+    choices: [
+      "EU data residency as a hard constraint",
+      "Propose / dispose: the AI proposes, nothing is saved until the user approves",
+      "AI-generated audio is watermarked (EU AI Act, Art. 50)",
+      "Compliance in the content: competitors appear only as objections, and denigration blocks the debrief score",
+      "A separate MSL mode with no promotional content",
     ],
-    experiences: [
-      {
-        role: "R&D Data Scientist Engineer",
-        company: "IRT Jules Verne",
-        period: "May 2024 – Present",
-        location: "Nantes, France",
-        bullets: [
-          "64% reduction in ultrasonic NDT costs via a decision support tool (deep learning + signal processing)",
-          "Computer vision for aeronautical / nuclear part characterization with uncertainty quantification",
-          "Won 2 research contracts totaling €150k (prospecting, specs writing, negotiation)"
-        ]
-      },
-      {
-        role: "R&D Data Scientist",
-        company: "Enerfox (EnergyTech Startup)",
-        period: "March 2023 – April 2024",
-        location: "Laval, France",
-        bullets: [
-          "Energy forecasting models (LSTM, Transformers): +30% accuracy, deployed for 150+ professional clients with monitoring/alerting",
-          "Automated energy diagnostic tool: analysis time reduced from 10-15h to 20 minutes",
-          "Patented NILM algorithm for professional energy disaggregation",
-          "Direct collaboration with CEO & Sales Director to define KPIs and product roadmap"
-        ]
-      },
-      {
-        role: "Research Assistant",
-        company: "Institut Mathématique de Bordeaux",
-        period: "May – August 2022",
-        location: "Bordeaux, France",
-        bullets: [
-          "Deep generative models (VD-VAE, StyleGAN) for photorealistic high-resolution image synthesis",
-          "Latent space manipulation for semantic control (face editing)"
-        ]
-      },
-      {
-        role: "Research Intern",
-        company: "ENSET Mohammedia",
-        period: "June – August 2021",
-        location: "Mohammedia, Morocco",
-        bullets: [
-          "Deep Reinforcement Learning models for autonomous driving in simulated environments",
-          "Genetic algorithms for combinatorial optimization on graphs"
-        ]
-      }
-    ],
-    skills: {
-      title: "TECHNICAL SKILLS",
-      categories: [
-        {
-          name: "Machine Learning",
-          items: ["Deep Learning", "Time Series", "Computer Vision", "NLP", "Reinforcement Learning", "Signal Processing", "Uncertainty Quantification"]
-        },
-        {
-          name: "Tech Stack",
-          items: ["Python", "PyTorch", "TensorFlow", "Scikit-learn", "SQL", "Git", "Linux", "Docker", "MLflow"]
-        },
-        {
-          name: "Cloud & MLOps",
-          items: ["AWS", "GCP", "Azure", "CI/CD", "MLOps", "Monitoring"]
-        }
-      ]
+    impact: null, // TODO(Red): e.g. "Visit prep from X to Y min" or "N reps in pilot"
+    stack: "Python · FastAPI · LangGraph · faster-whisper · open-weight LLMs · Chatterbox TTS · Azure",
+  },
+  {
+    title: "Who to visit next: HCP prioritization",
+    visibility: "Case study · code private",
+    problem: "Which doctors and pharmacies should a rep visit next, and in what order?",
+    approach: "A three-part score. Value covers territory performance and market share, urgency covers time since the last visit and the gap to the call plan, and efficiency uses proximity as a routing anchor. The scores drive the prioritization maps and visit lists reps work from in the SFE platform.",
+    impact: null, // TODO(Red)
+    stack: "Python · SQL · PostGIS",
+  },
+  {
+    title: "MSL briefing generator",
+    visibility: "Case study · code private",
+    problem: "Medical Science Liaisons juggle many projects and expert relationships and need to know what matters this week.",
+    approach: "Reads the project hierarchy, groups projects by urgency and priority, and writes a briefing. It covers key indicators, budget at risk per objective, a top-5 action list tied to upcoming visits, late projects in three buckets, and where each expert relationship stands.",
+    impact: null, // TODO(Red)
+    stack: "Python · PostgreSQL · multi-step LLM pipeline",
+  },
+  {
+    title: "AI adoption program for a pharma analytics team",
+    visibility: "Client engagement · anonymized",
+    problem: "A global biopharma's French Business Analytics team wanted to use AI in its work but didn't know where to start.",
+    approach: "A diagnostic, then an awareness workshop, use-case demonstrators and per-project coaching across six Copilot-agent projects, such as a compliance-checking agent, an automated insights engine and a shared prompt library. This led to a recurring \"AI flash\" news-and-demo session and a method for evaluating and scoring agents, now packaged as a reusable offer.",
+    impact: null, // TODO(Red): e.g. "N people coached, N agents in use"
+    stack: "Microsoft 365 Copilot · Copilot Studio · Power Automate",
+  },
+  {
+    title: "Data & AI maturity diagnostic",
+    visibility: "Consulting offer · Karetis",
+    problem: "Pharma leaders need to know where they stand on data and AI before deciding what to invest in.",
+    approach: "A model with 4 pillars and 5 stages, built on a review of the Gartner, MIT CISR, McKinsey, Deloitte and CMMI frameworks. The pillars are decision & analytics, data foundation, process & automation, and organization & culture. It comes as a diagnostic and roadmap, a diagnostic plus a proof of concept, or a full transformation.",
+    ladder: ["Artisanal", "Exploratory", "Industrialized", "Generalized", "Native"],
+    impact: null,
+    stack: null,
+  },
+  {
+    title: "Transparency-declaration tracking",
+    visibility: "Client engagement · anonymized",
+    problem: "A Japanese pharma affiliate's operations team had to follow regulatory transparency declarations as they passed between many people.",
+    approach: "Discovery with the team, then a tracker that follows each declaration through 16 milestones and always shows whose court the ball is in. It was built as an Excel/VBA workbook and validated on synthetic data.",
+    impact: null,
+    stack: "Excel · VBA",
+  },
+];
+
+const ALSO = "Also: Helm, a task agent inside Microsoft Teams (Power Automate, AI Builder), plus tooling that turns platform configuration into Excel, planning mock-ups and branded slide decks.";
+
+const TRACK_RECORD = {
+  numbers: [
+    { value: "−64%", label: "inspection testing costs" },
+    { value: "+30%", label: "forecast accuracy" },
+    { value: "150+", label: "clients served by models in production" },
+    { value: "1", label: "patent (load disaggregation)" },
+  ],
+  roles: [
+    {
+      org: "IRT Jules Verne",
+      role: "R&D Data Scientist · industrial AI",
+      period: "2024 – 2026",
+      bullets: [
+        "Decision aid for ultrasonic inspection, from signal acquisition to deep learning detection to operator recommendations. It cut testing costs by 64%.",
+        "Computer vision for aeronautic and nuclear part characterization, with uncertainty quantification",
+        "Won 2 research contracts worth €150k",
+      ],
     },
-    projects: {
-      title: "KEY PROJECTS",
-      learn_more: "Learn more →",
-      items: [
-        {
-          id: 0,
-          title: "Pharma Open Data Hub France",
-          description: "ETL pipeline for French public health datasets (Open Medic, RPPS, FINESS, Transparence Santé). Exploration and analysis of national pharmaceutical data.",
-          tags: ["Python", "ETL", "Healthcare", "Open Data"],
-          category: "Data Engineering · Pharma",
-          link: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-1-4-4b189e4e9703"
-        },
-        {
-          id: 1,
-          title: "Ultrasonic Industrial Inspection",
-          description: "End-to-end decision support system: signal acquisition → deep learning detection → operator recommendations. 64% reduction in non-destructive testing costs.",
-          tags: ["Deep Learning", "Signal Processing", "PyTorch", "NDT"],
-          category: "Industrial AI · Computer Vision"
-        },
-        {
-          id: 2,
-          title: "LSTM / Transformer Energy Forecasting",
-          description: "State-of-the-art forecasting models for solar production and energy consumption. +30% accuracy, deployed in production with monitoring for 150+ professional clients.",
-          tags: ["PyTorch", "LSTM", "Transformers", "MLOps", "Time Series"],
-          category: "Time Series Forecasting"
-        },
-        {
-          id: 3,
-          title: "Automated Energy Diagnostic Tool",
-          description: "Automated diagnostic tool turning data into qualified leads and actionable recommendations for energy performance contracts. Analysis time: 10-15h → 20 min.",
-          tags: ["Python", "Pandas", "Data Pipeline", "Analytics"],
-          category: "Energy Analytics"
-        },
-        {
-          id: 4,
-          title: "Patented NILM Algorithm",
-          description: "Adaptation of NILM (Non-Intrusive Load Monitoring) algorithms for professional energy disaggregation. Filed as a patent by Enerfox.",
-          tags: ["Signal Processing", "Python", "NILM", "Patent"],
-          category: "Signal Processing · Energy"
-        },
-        {
-          id: 5,
-          title: "Ego Graph via Google Suggest API",
-          description: "Construction of an ego graph using the Google Suggest API to visualize semantic relationships around a key concept.",
-          tags: ["Python", "Graph", "NLP", "API"],
-          category: "Data Visualization · NLP",
-          link: "https://redouaneb.medium.com/tutoriel-comment-construire-un-ego-graph-en-utilisant-lapi-google-suggest-0528210a498d"
-        }
-      ]
+    {
+      org: "Enerfox",
+      role: "R&D Data Scientist · energy",
+      period: "2023 – 2024",
+      bullets: [
+        "Solar production and consumption forecasting (LSTM, Transformers): +30% accuracy, in production for 150+ business clients with monitoring",
+        "Automated energy diagnostic: analysis time cut from 10–15 h to 20 min",
+        "Load disaggregation on electrical signals (NILM), patented by the company",
+      ],
     },
-    blog: {
-      title: "LATEST ARTICLES",
-      read_more: "Read on Medium →",
-      items: [
-        {
-          title: "Pharma Open Data: Guide to French public pharmaceutical data sources — Part 1/4",
-          link: "https://redouaneb.medium.com/pharma-open-data-guide-des-sources-publiques-de-donn%C3%A9es-pharmaceutiques-en-france-partie-1-4-4b189e4e9703",
-          tag: "Healthcare · Open Data"
-        },
-        {
-          title: "How to build an Ego Graph using the Google Suggest API",
-          link: "https://redouaneb.medium.com/tutoriel-comment-construire-un-ego-graph-en-utilisant-lapi-google-suggest-0528210a498d",
-          tag: "NLP · Graph"
-        }
-      ]
+    {
+      org: "Research internships",
+      role: "Institut de Mathématiques de Bordeaux · ENSET Mohammedia",
+      period: "2021 – 2022",
+      bullets: [
+        "High-resolution generative models (VD-VAE, StyleGAN) with latent-space editing",
+        "Deep reinforcement learning for autonomous driving in simulation",
+      ],
     },
-    contact: {
-      title: "LET'S BUILD SOMETHING TOGETHER",
-      description: "I'm looking for opportunities in <span class='text-highlight'>Data Science</span>, <span class='text-highlight'>ML Engineering</span> and <span class='text-highlight'>Decision Intelligence</span> in pharma, healthcare or industry."
-    },
-    footer: "© 2026 Redouane BOUAZZA · Decision Intelligence Systems"
-  }
+  ],
+};
+
+const SKILLS = [
+  { name: "AI & ML", items: ["LLM orchestration (LangGraph)", "Agent design & evaluation", "Scoring models", "Speech (Whisper, TTS)", "Generative models", "Reinforcement learning", "Uncertainty quantification"] },
+  { name: "Data", items: ["Python (pandas, Polars)", "SQL · PostgreSQL / PostGIS", "Azure", "Power BI", "Docker"] },
+  { name: "Microsoft AI", items: ["M365 Copilot", "Copilot Studio", "Power Automate", "AI Builder", "Azure AI Foundry", "Semantic Kernel"] },
+  { name: "Pharma & consulting", items: ["Sales force effectiveness", "Targeting & segmentation", "Next-best-action", "French pharma open data", "GDPR · EU AI Act", "AI maturity & adoption"] },
+];
+
+const WRITING = [
+  { title: "Pharma Open Data, part 2: Open Medic, drug consumption in France, with visualizations", tag: "FR · data.gouv.fr reuse", link: LINKS.medium2 },
+  { title: "Pharma Open Data, part 1: the French public drug database (BDPM)", tag: "FR · Open data", link: LINKS.medium1 },
+  { title: "Building an ego graph with the Google Suggest API", tag: "FR · Graphs", link: LINKS.egoPost },
+];
+
+const ICONS = {
+  linkedin: "M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z",
+  github: "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z",
+  medium: "M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z",
+};
+
+function Icon({ name }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICONS[name]} /></svg>
+  );
+}
+
+function External({ href, children, className }) {
+  return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
+}
+
+function SectionHead({ id, kicker, title }) {
+  return (
+    <header className="section-head" id={id}>
+      <p className="kicker">{kicker}</p>
+      <h2>{title}</h2>
+    </header>
+  );
+}
+
+function CaseCard({ c }) {
+  return (
+    <article className={`case${c.flagship ? ' case--flagship' : ''}`}>
+      <div className="case-top">
+        <span className="badge">{c.visibility}</span>
+        {c.flagship && <span className="badge badge--accent">Flagship</span>}
+      </div>
+      {c.name && <p className="case-name">{c.name} <span>{c.note}</span></p>}
+      <h3>{c.title}</h3>
+      <dl className="case-body">
+        <dt>Problem</dt><dd>{c.problem}</dd>
+        <dt>Approach</dt><dd>{c.approach}</dd>
+      </dl>
+      {c.ladder && (
+        <ol className="ladder" aria-label="Maturity stages">
+          {c.ladder.map(step => <li key={step}>{step}</li>)}
+        </ol>
+      )}
+      {c.choices && (
+        <ul className="choices">
+          {c.choices.map(x => <li key={x}>{x}</li>)}
+        </ul>
+      )}
+      {c.impact && <p className="impact">{c.impact}</p>}
+      {c.stack && <p className="stack">{c.stack}</p>}
+    </article>
+  );
 }
 
 function App() {
-  const [lang, setLang] = useState('fr');
-  const t = translations[lang];
+  const [flagship, ...cases] = FEATURED;
+  const base = import.meta.env.BASE_URL;
 
   return (
-    <div className="portfolio">
-      <nav>
-        <div className="container nav-content">
-          <div className="logo-text">Redouane<span style={{ color: 'var(--accent-secondary)', fontWeight: 400 }}>.Portfolio</span></div>
-          <ul className="nav-links">
-            <li><a href="#home">{t.nav.home}</a></li>
-            <li><a href="#experience">{t.nav.experience}</a></li>
-            <li><a href="#realisation">{t.nav.realisation}</a></li>
-            <li><a href="#contact">{t.nav.contact}</a></li>
-            <li className="lang-switcher" style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem' }}>
-              <button onClick={() => setLang('fr')} style={{ color: lang === 'fr' ? 'var(--accent-primary)' : 'white', fontWeight: lang === 'fr' ? '800' : '400', background: 'none', border: 'none', cursor: 'pointer' }}>FR</button>
-              <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
-              <button onClick={() => setLang('en')} style={{ color: lang === 'en' ? 'var(--accent-primary)' : 'white', fontWeight: lang === 'en' ? '800' : '400', background: 'none', border: 'none', cursor: 'pointer' }}>EN</button>
-            </li>
+    <div className="page">
+      <nav className="nav">
+        <div className="container nav-inner">
+          <a href="#top" className="brand">Redouane <strong>Bouazza</strong></a>
+          <ul>
+            <li><a href="#work">Work</a></li>
+            <li><a href="#open">Open data</a></li>
+            <li><a href="#background">Background</a></li>
+            <li><a href="#research">Research</a></li>
           </ul>
         </div>
       </nav>
 
-      <main>
+      <main id="top">
         {/* Hero */}
-        <section id="home" className="hero">
-          <div className="container hero-grid">
-            <div className="hero-text">
-              <h1 className="hero-name-capture">
-                Redouane <span className="blue-text-name">BOUAZZA</span>
-              </h1>
+        <section className="hero container">
+          <div className="hero-text">
+            <p className="kicker">Senior Data &amp; AI Solutions · <External href={LINKS.karetis}>Karetis</External> · Lyon</p>
+            <h1>Redouane “Red” Bouazza</h1>
+            <p className="hero-line">Decision intelligence: AI &amp; data for pharma sales performance.</p>
+            <p className="tagline">From signal to strategy.</p>
+            <p className="hero-lead">
+              I decide what to build and why, then build it: AI and data products that help pharma field teams and their managers
+              make better calls, designed to be reliable, auditable and compliant from day one.
+            </p>
+            <div className="hero-actions">
+              <a href="#work" className="btn btn--primary">See the work</a>
+              <div className="socials">
+                <External href={LINKS.linkedin}><Icon name="linkedin" /><span className="sr">LinkedIn</span></External>
+                <External href={LINKS.github}><Icon name="github" /><span className="sr">GitHub</span></External>
+                <External href={LINKS.medium}><Icon name="medium" /><span className="sr">Medium</span></External>
+              </div>
+            </div>
+          </div>
+          <div className="hero-photo">
+            <img src={`${base}portfolio/profile.webp`} alt="Portrait of Redouane Bouazza" width="320" height="320" />
+          </div>
+        </section>
 
-              <h2 className="hero-headline-capture">
-                <span className="text-white">Decision</span> <br />
-                <span className="text-blue-accent">Intelligence</span>
-              </h2>
+        {/* What I do */}
+        <section className="container block">
+          <div className="outcomes">
+            {WHAT_I_DO.map((o, i) => (
+              <div key={o.title} className="outcome">
+                <span className="outcome-num">0{i + 1}</span>
+                <h3>{o.title}</h3>
+                <p>{o.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-              <p className="hero-subtitle-capture">
-                {t.hero.subtitle}
+        {/* Featured work */}
+        <section className="container block">
+          <SectionHead id="work" kicker="Featured work" title="Problem, approach, outcome" />
+          <p className="section-note">Most of this work belongs to Karetis or its clients, so these are case studies with the code kept private and the clients anonymized.</p>
+          <CaseCard c={flagship} />
+          <div className="case-grid">
+            {cases.map(c => <CaseCard key={c.title} c={c} />)}
+          </div>
+          <p className="also">{ALSO}</p>
+        </section>
+
+        {/* Open work */}
+        <section className="container block">
+          <SectionHead id="open" kicker="Open work" title="French pharma open data" />
+          <div className="open-main">
+            <div>
+              <h3>Pharma Open Data Hub France</h3>
+              <p>
+                Pipelines and analyses of France's public health datasets: the drug database (BDPM), Open Medic reimbursements,
+                RPPS, FINESS and Transparence Santé. The Open Medic analysis is published as an official reuse on data.gouv.fr.
               </p>
-
-              <div className="hero-description-box-capture">
-                <p dangerouslySetInnerHTML={{ __html: t.hero.description }}></p>
-              </div>
-
-              <div className="cta-row-capture">
-                <a href="#realisation" className="btn-projects-capture">{t.hero.cta_projects}</a>
-                <a href={SOCIAL_LINKS.email} className="btn-cv-capture">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                  {t.hero.cta_cv}
-                </a>
-
-                <div className="social-links-capture">
-                  <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
-                  </a>
-                  <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" title="GitHub">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
-                  </a>
-                  <a href={SOCIAL_LINKS.medium} target="_blank" rel="noopener noreferrer" title="Medium">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg>
-                  </a>
-                </div>
-              </div>
+              <p className="muted">Next: mapping these datasets to sales-force-effectiveness questions such as targeting, segmentation and pricing.</p>
             </div>
-
-            <div className="hero-image-pro">
-              <div className="image-frame-pro">
-                <img src="image.png" alt="Redouane BOUAZZA" className="main-profile-img" />
-                <div className="floating-badge-emoji e1">🤖</div>
-                <div className="floating-badge-emoji e2">📊</div>
-                <div className="floating-badge-emoji e3">🧠</div>
-                <div className="floating-badge-emoji e4">⚡</div>
-              </div>
+            <div className="link-list">
+              <External href={LINKS.pharmaRepo} className="btn btn--ghost">Code on GitHub</External>
+              <External href={LINKS.dataGouv} className="btn btn--ghost">data.gouv.fr reuse</External>
+              <External href={LINKS.medium2} className="btn btn--ghost">Article series</External>
             </div>
           </div>
+          <p className="also">
+            Smaller: an <External href={LINKS.egoDemo}>ego-graph explorer</External> built on Google Suggest
+            (<External href={LINKS.egoRepo}>code</External>).
+          </p>
         </section>
 
-        {/* Stats */}
-        <section className="container" style={{ marginBottom: '4rem' }}>
-          <div className="stats-grid">
-            {t.stats.map(stat => (
-              <div key={stat.id} className="stat-item">
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
+        {/* Background */}
+        <section className="container block">
+          <SectionHead id="background" kicker="Background" title="From industrial AI to pharma" />
+          <p className="section-note">
+            Before pharma, I worked on industrial inspection, energy and research. The common thread is uncertainty and trust:
+            making models reliable enough that people act on them.
+          </p>
+          <div className="numbers">
+            {TRACK_RECORD.numbers.map(n => (
+              <div key={n.label} className="number">
+                <span className="number-value">{n.value}</span>
+                <span className="number-label">{n.label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="roles">
+            <div className="role role--current">
+              <div className="role-head">
+                <h3>Karetis</h3>
+                <span className="period">Current role</span>
+              </div>
+              <p className="role-title">Senior Data &amp; AI Solutions</p>
+              <p className="muted">
+                A boutique consultancy in pharma sales force effectiveness, data and AI. I lead the firm's data and AI work,
+                from client diagnostics and coaching to products such as Kairos.
+              </p>
+            </div>
+            {TRACK_RECORD.roles.map(r => (
+              <div key={r.org} className="role">
+                <div className="role-head">
+                  <h3>{r.org}</h3>
+                  <span className="period">{r.period}</span>
+                </div>
+                <p className="role-title">{r.role}</p>
+                <ul>{r.bullets.map(b => <li key={b}>{b}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+          <p className="also">Education: engineering degree in mathematics, INSA Rouen Normandie · Master's in Data Science &amp; AI, Université de Rouen Normandie.</p>
+          <div className="skills">
+            {SKILLS.map(s => (
+              <div key={s.name} className="skill-group">
+                <h4>{s.name}</h4>
+                <p>{s.items.join(' · ')}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Experience */}
-        <section id="experience" className="container" style={{ marginBottom: '6rem' }}>
-          <div className="section-header-centered">
-            <div className="pill-title">
-              <span className="pill-icon">✨</span>
-              {t.hero.experience_title}
+        {/* Research */}
+        <section className="container block">
+          <SectionHead id="research" kicker="Research" title="Trustworthy AI for healthcare" />
+          <div className="research">
+            <div>
+              <p>
+                <strong>Doctorate (in preparation)</strong> with ENSET Mohammedia, Université Hassan II de Casablanca, as a part-time thesis by publication.
+                The subject is a unified generative-AI framework to synthesize, enhance and interpret medical images, applied to
+                the early detection of diabetic retinopathy.
+              </p>
+              <p>
+                My angle is AI that stays trustworthy once deployed. That means monitoring after deployment ("algorithmovigilance"),
+                conformity built into the design rather than documented afterwards, and the overlap between the AI Act, the MDR,
+                HAS and CNIL requirements.
+              </p>
             </div>
-          </div>
-          <div className="experience-timeline">
-            {t.experiences.map((exp, idx) => (
-              <div key={idx} className="exp-card">
-                <div className="exp-card-left">
-                  <div className="exp-period-badge">{exp.period}</div>
-                  <div className="exp-location">{exp.location}</div>
-                </div>
-                <div className="exp-card-connector">
-                  <div className="exp-dot"></div>
-                  <div className="exp-line"></div>
-                </div>
-                <div className="exp-card-right">
-                  <div className="exp-company">{exp.company}</div>
-                  <h3 className="exp-role">{exp.role}</h3>
-                  <ul className="exp-bullets">
-                    {exp.bullets.map((bullet, j) => (
-                      <li key={j}>{bullet}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
+            <div className="interests">
+              <h4>Longer-term interests</h4>
+              <p>Multi-agent reinforcement learning · Explainable AI (Shapley values) · Model alignment · Bio-inspired algorithms</p>
+            </div>
           </div>
         </section>
 
-        {/* Skills */}
-        <section className="container" style={{ marginBottom: '6rem' }}>
-          <div className="section-header-centered">
-            <div className="pill-title">
-              <span className="pill-icon">⚡</span>
-              {t.skills.title}
+        {/* Teaching & writing */}
+        <section className="container block">
+          <SectionHead kicker="Teaching & writing" title="Sharing what works" />
+          <div className="teach">
+            <ul className="teach-list">
+              <li>Teach an internal Microsoft Copilot course to colleagues</li>
+              <li>Building a course on scoring and evaluating AI agents</li>
+              <li>Supervising a Data &amp; AI intern from January 2027</li>
+            </ul>
+            <div className="writing">
+              {WRITING.map(w => (
+                <External key={w.link} href={w.link} className="post">
+                  <span className="post-tag">{w.tag}</span>
+                  <span className="post-title">{w.title}</span>
+                </External>
+              ))}
             </div>
-          </div>
-          <div className="skills-grid">
-            {t.skills.categories.map((cat, i) => (
-              <div key={i} className="skills-category">
-                <h4 className="skills-cat-title">{cat.name}</h4>
-                <div className="skills-tags">
-                  {cat.items.map((item, j) => (
-                    <span key={j} className="skill-tag">{item}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
-        {/* Projects */}
-        <section id="realisation" className="container" style={{ marginBottom: '6rem' }}>
-          <div className="section-header-centered">
-            <div className="pill-title">
-              <span className="pill-icon">🚀</span>
-              {t.projects.title}
+        {/* Working together: via Karetis */}
+        <section className="container block">
+          <div className="karetis">
+            <div>
+              <h2>Working on pharma sales performance?</h2>
+              <p>I work with clients through Karetis, a consultancy in sales force effectiveness, data and AI for pharma. For a project, contact the Karetis team.</p>
             </div>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: '2rem'
-          }}>
-            {t.projects.items.map(project => (
-              <div key={project.id} className="project-card" style={{
-                background: 'var(--bg-card)',
-                padding: '2rem',
-                borderRadius: '24px',
-                border: '1px solid rgba(255,255,255,0.05)',
-                transition: 'all 0.3s ease'
-              }}>
-                <div style={{
-                  background: 'rgba(0, 123, 255, 0.1)',
-                  color: 'var(--accent-primary)',
-                  padding: '4px 12px',
-                  borderRadius: '100px',
-                  fontSize: '0.8rem',
-                  display: 'inline-block',
-                  marginBottom: '1rem'
-                }}>{project.category}</div>
-                <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>{project.title}</h3>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{project.description}</p>
-                <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                  {project.tags.map(tag => (
-                    <span key={tag} className="project-tag">#{tag}</span>
-                  ))}
-                </div>
-                {project.link && (
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: '600' }}>{t.projects.learn_more}</a>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Blog */}
-        <section className="container" style={{ marginBottom: '6rem' }}>
-          <div className="section-header-centered">
-            <div className="pill-title">
-              <span className="pill-icon">✍️</span>
-              {t.blog.title}
-            </div>
-          </div>
-          <div className="blog-grid">
-            {t.blog.items.map((post, i) => (
-              <a key={i} href={post.link} target="_blank" rel="noopener noreferrer" className="blog-card">
-                <span className="blog-tag">{post.tag}</span>
-                <h3 className="blog-title">{post.title}</h3>
-                <span className="blog-read-more">{t.blog.read_more}</span>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section id="contact" className="container" style={{ padding: '100px 0' }}>
-          <div className="contact-card">
-            <div className="section-header-centered">
-              <div className="pill-title">
-                <span className="pill-icon">📬</span>
-                {t.contact.title}
-              </div>
-            </div>
-            <p
-              style={{ maxWidth: '700px', margin: '0 auto 3rem', color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', lineHeight: '1.8' }}
-              dangerouslySetInnerHTML={{ __html: t.contact.description }}
-            ></p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '4rem', flexWrap: 'wrap' }}>
-              <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" className="social-circle" style={{ width: '70px', height: '70px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
-              </a>
-              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" className="social-circle" style={{ width: '70px', height: '70px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
-              </a>
-              <a href={SOCIAL_LINKS.medium} target="_blank" rel="noopener noreferrer" className="social-circle" style={{ width: '70px', height: '70px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg>
-              </a>
-              <a href={SOCIAL_LINKS.email} className="social-circle" style={{ width: '70px', height: '70px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-              </a>
-            </div>
-            <a href={SOCIAL_LINKS.email} className="btn-projects">
-              {lang === 'fr' ? 'Envoyer un message' : 'Send a message'}
-            </a>
+            <External href={LINKS.karetis} className="btn btn--primary">Visit Karetis</External>
           </div>
         </section>
       </main>
 
-      <footer style={{ padding: '4rem 0', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '4rem' }}>
-        <p style={{ color: 'rgba(255,255,255,0.3)' }}>{t.footer}</p>
+      <footer className="footer container">
+        <p>© {new Date().getFullYear()} Redouane Bouazza · Lyon, France</p>
+        <div className="socials">
+          <External href={LINKS.linkedin}><Icon name="linkedin" /><span className="sr">LinkedIn</span></External>
+          <External href={LINKS.github}><Icon name="github" /><span className="sr">GitHub</span></External>
+          <External href={LINKS.medium}><Icon name="medium" /><span className="sr">Medium</span></External>
+        </div>
       </footer>
     </div>
-  )
+  );
 }
 
 export default App

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://redouane-b.github.io/sitemap.xml

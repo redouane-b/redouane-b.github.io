@@ -23,3 +23,6 @@ todo.md
 *.njsproj
 *.sln
 *.sw?
+
+# Personal notes (not for publishing)
+me/
